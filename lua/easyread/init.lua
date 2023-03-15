@@ -1,18 +1,16 @@
-print("hello world!")
+print('easyread loaded')
 
 local M = {}
 
-function M.greet()
-    print("hello from module!")
-end
+M.start = function ()
+    local ns = vim.api.nvim_create_namespace('easyreadns')
+    local bufnr = vim.api.nvim_get_current_buf()
+    local linecount = vim.api.nvim_buf_line_count(bufnr)
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, linecount, false)
 
-M.get_lines = function ()
-    local numlines = vim.api.nvim_buf_line_count(0)
-    local lines = vim.api.nvim_buf_get_lines(0, 0, numlines, false)
-
-    print('lines: ', numlines)
-    for index, value in ipairs(lines) do
-        print(index, ' : ', value)
+    for i, _ in ipairs(lines) do
+        -- highlight first 3 characters in each line
+        vim.api.nvim_buf_add_highlight(bufnr, ns, 'Bold', i - 1, 0, 3)
     end
 end
 
