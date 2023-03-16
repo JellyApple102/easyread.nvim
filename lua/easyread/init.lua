@@ -1,5 +1,3 @@
-print('easyread loaded')
-
 local M = {}
 
 M.start = function ()
@@ -8,9 +6,12 @@ M.start = function ()
     local linecount = vim.api.nvim_buf_line_count(bufnr)
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, linecount, false)
 
-    for i, _ in ipairs(lines) do
-        -- highlight first 3 characters in each line
-        vim.api.nvim_buf_add_highlight(bufnr, ns, 'Bold', i - 1, 0, 3)
+    for i, line in ipairs(lines) do
+        -- bold half of each word
+        for s, w, e in string.gmatch(line, '()(%w+)()') do
+            local half = math.floor(string.len(w) / 2)
+            vim.api.nvim_buf_add_highlight(bufnr, ns, 'Bold', i - 1, s - 1, e - 1 - half);
+        end
     end
 end
 
