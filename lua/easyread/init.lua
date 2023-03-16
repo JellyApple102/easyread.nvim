@@ -41,3 +41,16 @@ M.clear = function ()
 end
 
 return M
+
+-- TODO
+-- [x] add default config and setup function
+-- [] custom highlight group
+-- [] default on filetypes
+-- [] implement saccades interval
+--   [x] reset by line or carry over option ??
+-- [] update during insert mode option
+-- -- autocommands?
+-- [] figure out how to determine how much of a word to bold
+-- -- fixation??
+-- [] add vim command(s) e.g. <cmd>EasyreadToggle
+-- -- :h nvim_create_user_command()
