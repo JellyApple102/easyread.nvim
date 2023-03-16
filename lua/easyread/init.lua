@@ -1,7 +1,7 @@
 local M = {}
 
 M.config = {
-    hlgroup = 'Bold',
+    hlgroup = { link = 'Bold' },
     fileTypes = { 'text' },
     saccadeInterval = 0,
     saccadeReset = false,
@@ -9,16 +9,12 @@ M.config = {
 }
 
 M.setup = function (config)
-    M.config = config
+    M.config = vim.tbl_deep_extend('force', M.config, config or {})
 
     M.namespace = vim.api.nvim_create_namespace('easyread')
 
-    if type(M.config.hlgroup) == 'string' then
-        M.hlgroup = M.config.hlgroup
-    elseif type(M.config.hlgroup) == 'table' then
-        vim.api.nvim_set_hl(0, 'EasyreadHl', M.config.hlgroup)
-        M.hlgroup = 'EasyreadHl'
-    end
+    vim.api.nvim_set_hl(0, 'EasyreadHl', M.config.hlgroup)
+    M.hlgroup = 'EasyreadHl'
 end
 
 M.start = function ()
@@ -44,7 +40,7 @@ return M
 
 -- TODO
 -- [x] add default config and setup function
--- [] custom highlight group
+-- [X] custom highlight group
 -- [] default on filetypes
 -- [] implement saccades interval
 --   [x] reset by line or carry over option ??
