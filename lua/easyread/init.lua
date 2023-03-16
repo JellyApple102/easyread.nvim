@@ -35,4 +35,9 @@ M.start = function ()
     end
 end
 
+M.clear = function ()
+    local bufnr = vim.api.nvim_get_current_buf()
+    vim.api.nvim_buf_clear_namespace(bufnr, M.namespace, 0, -1)
+end
+
 return M
