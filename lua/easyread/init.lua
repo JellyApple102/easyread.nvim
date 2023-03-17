@@ -1,15 +1,25 @@
 local M = {}
 
 M.config = {
+    hlValues = {
+        ['1'] = 1,
+        ['2'] = 1,
+        ['3'] = 2,
+        ['4'] = 2,
+        ['fallback'] = 0.4
+    },
     hlgroupOptions = { link = 'Bold' },
     fileTypes = { 'text' },
     saccadeInterval = 0,
     saccadeReset = false,
-    updateInsertMode = false
+    updateInsertMode = true
 }
 
 M.setup = function(config)
     -- config
+    if config.hlValues then
+        M.config.hlValues = {}
+    end
     M.config = vim.tbl_deep_extend('force', M.config, config or {})
 
     M.activeBufs = {}
@@ -35,8 +45,8 @@ M.highlight = function()
             saccadecounter = 0
         end
 
-        -- bold half of each word
-        for s, w, e in string.gmatch(line, '()(%w+)()') do
+        -- highlight according to hlTable
+        for s, w in string.gmatch(line, '()(%w+)') do
             -- reset saccadecounter if over the interval
             if saccadecounter > M.config.saccadeInterval then
                 saccadecounter = 0
@@ -44,8 +54,17 @@ M.highlight = function()
 
             -- highlight word if at beginning of interval
             if saccadecounter == 0 then
-                local half = math.floor(string.len(w) / 2)
-                vim.api.nvim_buf_add_highlight(bufnr, M.namespace, M.hlgroup, i - 1, s - 1, e - 1 - half)
+                local length = string.len(w)
+                local strLength = tostring(length)
+                local toHl = 0
+
+                if M.config.hlValues[strLength] then
+                    toHl = M.config.hlValues[strLength]
+                else
+                    toHl = math.floor(length * M.config.hlValues['fallback'] + 0.5)
+                end
+
+                vim.api.nvim_buf_add_highlight(bufnr, M.namespace, M.hlgroup, i - 1, s - 1, s - 1 + toHl)
                 saccadecounter = saccadecounter + 1
             else
                 saccadecounter = saccadecounter + 1
@@ -136,14 +155,3 @@ vim.api.nvim_create_autocmd('TextChangedI', {
 })
 
 return M
-
--- TODO
--- [x] add default config and setup function
--- [x] custom highlight group
--- [x] default on filetypes
--- [x] implement saccades interval
---   [x] reset by line or carry over option ??
--- [x] update during insert mode option
--- [] figure out how to determine how much of a word to bold
--- -- fixation??
--- [x] add user commands
