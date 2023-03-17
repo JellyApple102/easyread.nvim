@@ -27,11 +27,28 @@ M.start = function ()
     local linecount = vim.api.nvim_buf_line_count(bufnr)
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, linecount, false)
 
+    local saccadecounter = 0
     for i, line in ipairs(lines) do
+        -- reset saccade if configured
+        if M.config.saccadeReset then
+            saccadecounter = 0
+        end
+
         -- bold half of each word
         for s, w, e in string.gmatch(line, '()(%w+)()') do
-            local half = math.floor(string.len(w) / 2)
-            vim.api.nvim_buf_add_highlight(bufnr, M.namespace, M.hlgroup, i - 1, s - 1, e - 1 - half);
+            -- reset saccadecounter if over the interval
+            if saccadecounter > M.config.saccadeInterval then
+                saccadecounter = 0
+            end
+
+            -- highlight word if at beginning of interval
+            if saccadecounter == 0 then
+                local half = math.floor(string.len(w) / 2)
+                vim.api.nvim_buf_add_highlight(bufnr, M.namespace, M.hlgroup, i - 1, s - 1, e - 1 - half)
+                saccadecounter = saccadecounter + 1
+            else
+                saccadecounter = saccadecounter + 1
+            end
         end
     end
 end
@@ -42,7 +59,7 @@ return M
 -- [x] add default config and setup function
 -- [X] custom highlight group
 -- [] default on filetypes
--- [] implement saccades interval
+-- [x] implement saccades interval
 --   [x] reset by line or carry over option ??
 -- [] update during insert mode option
 -- -- autocommands?
