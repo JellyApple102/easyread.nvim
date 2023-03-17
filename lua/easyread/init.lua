@@ -12,7 +12,7 @@ M.setup = function(config)
     -- config
     M.config = vim.tbl_deep_extend('force', M.config, config or {})
 
-    M.active = false
+    M.activeBufs = {}
 
     -- highlights
     M.namespace = vim.api.nvim_create_namespace('easyread')
@@ -22,9 +22,9 @@ end
 
 M.highlight = function()
     M.clear()
-    M.active = true
 
     local bufnr = vim.api.nvim_get_current_buf()
+    M.activateBuf(bufnr)
     local linecount = vim.api.nvim_buf_line_count(bufnr)
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, linecount, false)
 
@@ -55,14 +55,27 @@ M.highlight = function()
 end
 
 M.clear = function()
-    M.active = false
     local bufnr = vim.api.nvim_get_current_buf()
+    M.deactivateBuf(bufnr)
     vim.api.nvim_buf_clear_namespace(bufnr, M.namespace, 0, -1)
+end
+
+M.activateBuf = function(bufnr)
+    M.activeBufs[bufnr] = true
+end
+
+M.deactivateBuf = function(bufnr)
+    M.activeBufs[bufnr] = nil
+end
+
+M.checkActiveBuf = function(bufnr)
+    return M.activeBufs[bufnr] ~= nil
 end
 
 -- user commands
 vim.api.nvim_create_user_command('EasyreadToggle', function()
-    if M.active then
+    local bufnr = vim.api.nvim_get_current_buf()
+    if M.checkActiveBuf(bufnr) then
         M.clear()
     else
         M.highlight()
@@ -104,7 +117,8 @@ vim.api.nvim_create_autocmd('InsertLeave', {
     pattern = '*',
     group = group,
     callback = function()
-        if M.active then
+        local bufnr = vim.api.nvim_get_current_buf()
+        if M.checkActiveBuf(bufnr) then
             M.highlight()
         end
     end
@@ -114,7 +128,8 @@ vim.api.nvim_create_autocmd('TextChangedI', {
     pattern = '*',
     group = group,
     callback = function()
-        if M.config.updateInsertMode and M.active then
+        local bufnr = vim.api.nvim_get_current_buf()
+        if M.config.updateInsertMode and M.checkActiveBuf(bufnr) then
             M.highlight()
         end
     end
