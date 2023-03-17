@@ -60,12 +60,12 @@ M.setup = function(config)
     M.hlgroup = 'EasyreadHl'
 
     -- user commands
-    vim.api.nvim_create_user_command('EasyreadClear', function()
-        M.clear()
-    end, {})
-
-    vim.api.nvim_create_user_command('EasyreadStart', function()
-        M.highlight()
+    vim.api.nvim_create_user_command('EasyreadToggle', function()
+        if M.active then
+            M.clear()
+        else
+            M.highlight()
+        end
     end, {})
 
     vim.api.nvim_create_user_command('EasyreadSaccadeInterval', function(opts)
@@ -92,6 +92,7 @@ M.setup = function(config)
 
     -- auto commands
     local group = vim.api.nvim_create_augroup('easyread', { clear = true })
+
     vim.api.nvim_create_autocmd('FileType', {
         pattern = M.config.fileTypes,
         group = group,
