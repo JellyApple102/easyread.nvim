@@ -47,13 +47,16 @@ M.config = {
 }
 
 M.setup = function (config)
+    -- config
     M.config = vim.tbl_deep_extend('force', M.config, config or {})
 
+    -- other setup
     M.namespace = vim.api.nvim_create_namespace('easyread')
 
     vim.api.nvim_set_hl(0, 'EasyreadHl', M.config.hlgroup)
     M.hlgroup = 'EasyreadHl'
 
+    -- user commands
     vim.api.nvim_create_user_command('EasyreadClear', function ()
         M.clear()
     end, {})
@@ -61,6 +64,14 @@ M.setup = function (config)
     vim.api.nvim_create_user_command('EasyreadStart', function ()
         M.start()
     end, {})
+
+    -- auto commands
+    local group = vim.api.nvim_create_augroup('easyread', { clear = true })
+    vim.api.nvim_create_autocmd('FileType', {
+        pattern = M.config.fileTypes,
+        group = group,
+        callback = function() M.start() end
+    })
 end
 
 return M
@@ -68,7 +79,7 @@ return M
 -- TODO
 -- [x] add default config and setup function
 -- [x] custom highlight group
--- [] default on filetypes
+-- [x] default on filetypes
 -- [x] implement saccades interval
 --   [x] reset by line or carry over option ??
 -- [] update during insert mode option
