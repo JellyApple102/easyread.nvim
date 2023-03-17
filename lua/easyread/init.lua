@@ -1,5 +1,25 @@
 local M = {}
 
+M.config = {
+    hlgroupOptions = { link = 'Bold' },
+    fileTypes = { 'text' },
+    saccadeInterval = 0,
+    saccadeReset = false,
+    updateInsertMode = false
+}
+
+M.setup = function(config)
+    -- config
+    M.config = vim.tbl_deep_extend('force', M.config, config or {})
+
+    M.active = false
+
+    -- highlights
+    M.namespace = vim.api.nvim_create_namespace('easyread')
+    vim.api.nvim_set_hl(0, 'EasyreadHl', M.config.hlgroupOptions)
+    M.hlgroup = 'EasyreadHl'
+end
+
 M.highlight = function()
     M.clear()
     M.active = true
@@ -40,85 +60,65 @@ M.clear = function()
     vim.api.nvim_buf_clear_namespace(bufnr, M.namespace, 0, -1)
 end
 
-M.config = {
-    hlgroup = { link = 'Bold' },
-    fileTypes = { 'text' },
-    saccadeInterval = 0,
-    saccadeReset = false,
-    updateInsertMode = false
-}
+-- user commands
+vim.api.nvim_create_user_command('EasyreadToggle', function()
+    if M.active then
+        M.clear()
+    else
+        M.highlight()
+    end
+end, {})
 
-M.setup = function(config)
-    -- config
-    M.config = vim.tbl_deep_extend('force', M.config, config or {})
+vim.api.nvim_create_user_command('EasyreadSaccadeInterval', function(opts)
+    M.config.saccadeInterval = tonumber(opts.fargs[1])
+    M.highlight()
+end, { nargs = 1 })
 
-    M.active = false
+vim.api.nvim_create_user_command('EasyreadSaccadeReset', function()
+    if M.config.saccadeReset then
+        M.config.saccadeReset = false
+    else
+        M.config.saccadeReset = true
+    end
+        M.highlight()
+end, {})
 
-    -- highlights
-    M.namespace = vim.api.nvim_create_namespace('easyread')
-    vim.api.nvim_set_hl(0, 'EasyreadHl', M.config.hlgroup)
-    M.hlgroup = 'EasyreadHl'
+vim.api.nvim_create_user_command('EasyreadUpdateInsert', function()
+    if M.config.updateInsertMode then
+        M.config.updateInsertMode = false
+    else
+        M.config.updateInsertMode = true
+    end
+end, {})
 
-    -- user commands
-    vim.api.nvim_create_user_command('EasyreadToggle', function()
+-- auto commands
+local group = vim.api.nvim_create_augroup('easyread', { clear = true })
+
+vim.api.nvim_create_autocmd('FileType', {
+    pattern = M.config.fileTypes,
+    group = group,
+    callback = function() M.highlight() end
+})
+
+vim.api.nvim_create_autocmd('InsertLeave', {
+    pattern = '*',
+    group = group,
+    callback = function()
         if M.active then
-            M.clear()
-        else
             M.highlight()
         end
-    end, {})
+    end
+})
 
-    vim.api.nvim_create_user_command('EasyreadSaccadeInterval', function(opts)
-        M.config.saccadeInterval = tonumber(opts.fargs[1])
-        M.highlight()
-    end, { nargs = 1 })
-
-    vim.api.nvim_create_user_command('EasyreadSaccadeReset', function()
-        if M.config.saccadeReset then
-            M.config.saccadeReset = false
-        else
-            M.config.saccadeReset = true
+vim.api.nvim_create_autocmd('TextChangedI', {
+    pattern = '*',
+    group = group,
+    callback = function()
+        if M.config.updateInsertMode and M.active then
+            M.highlight()
         end
-        M.highlight()
-    end, {})
-
-    vim.api.nvim_create_user_command('EasyreadUpdateInsert', function()
-        if M.config.updateInsertMode then
-            M.config.updateInsertMode = false
-        else
-            M.config.updateInsertMode = true
-        end
-    end, {})
-
-    -- auto commands
-    local group = vim.api.nvim_create_augroup('easyread', { clear = true })
-
-    vim.api.nvim_create_autocmd('FileType', {
-        pattern = M.config.fileTypes,
-        group = group,
-        callback = function() M.highlight() end
-    })
-
-    vim.api.nvim_create_autocmd('InsertLeave', {
-        pattern = '*',
-        group = group,
-        callback = function()
-            if M.active then
-                M.highlight()
-            end
-        end
-    })
-
-    vim.api.nvim_create_autocmd('TextChangedI', {
-        pattern = '*',
-        group = group,
-        callback = function()
-            if M.config.updateInsertMode and M.active then
-                M.highlight()
-            end
-        end
-    })
-end
+    end
+})
 
 return M
 
