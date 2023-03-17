@@ -12,7 +12,7 @@ M.config = {
     fileTypes = { 'text' },
     saccadeInterval = 0,
     saccadeReset = false,
-    updateInsertMode = true
+    updateWhileInsert = true
 }
 
 M.setup = function(config)
@@ -45,7 +45,7 @@ M.highlight = function()
             saccadecounter = 0
         end
 
-        -- highlight according to hlTable
+        -- highlight according to hlValues
         for s, w in string.gmatch(line, '()(%w+)') do
             -- reset saccadecounter if over the interval
             if saccadecounter > M.config.saccadeInterval then
@@ -65,10 +65,9 @@ M.highlight = function()
                 end
 
                 vim.api.nvim_buf_add_highlight(bufnr, M.namespace, M.hlgroup, i - 1, s - 1, s - 1 + toHl)
-                saccadecounter = saccadecounter + 1
-            else
-                saccadecounter = saccadecounter + 1
             end
+
+            saccadecounter = saccadecounter + 1
         end
     end
 end
@@ -115,11 +114,11 @@ vim.api.nvim_create_user_command('EasyreadSaccadeReset', function()
         M.highlight()
 end, {})
 
-vim.api.nvim_create_user_command('EasyreadUpdateInsert', function()
-    if M.config.updateInsertMode then
-        M.config.updateInsertMode = false
+vim.api.nvim_create_user_command('EasyreadUpdateWhileInsert', function()
+    if M.config.updateWhileInsert then
+        M.config.updateWhileInsert = false
     else
-        M.config.updateInsertMode = true
+        M.config.updateWhileInsert = true
     end
 end, {})
 
@@ -148,7 +147,7 @@ vim.api.nvim_create_autocmd('TextChangedI', {
     group = group,
     callback = function()
         local bufnr = vim.api.nvim_get_current_buf()
-        if M.config.updateInsertMode and M.checkActiveBuf(bufnr) then
+        if M.config.updateWhileInsert and M.checkActiveBuf(bufnr) then
             M.highlight()
         end
     end
