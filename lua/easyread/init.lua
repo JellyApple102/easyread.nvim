@@ -15,6 +15,11 @@ M.setup = function (config)
 
     vim.api.nvim_set_hl(0, 'EasyreadHl', M.config.hlgroup)
     M.hlgroup = 'EasyreadHl'
+
+    vim.api.nvim_create_user_command('EasyreadClear', function ()
+        local bufnr = vim.api.nvim_get_current_buf()
+        vim.api.nvim_buf_clear_namespace(bufnr, M.namespace, 0, -1)
+    end, {})
 end
 
 M.start = function ()
@@ -31,11 +36,6 @@ M.start = function ()
     end
 end
 
-M.clear = function ()
-    local bufnr = vim.api.nvim_get_current_buf()
-    vim.api.nvim_buf_clear_namespace(bufnr, M.namespace, 0, -1)
-end
-
 return M
 
 -- TODO
@@ -48,5 +48,5 @@ return M
 -- -- autocommands?
 -- [] figure out how to determine how much of a word to bold
 -- -- fixation??
--- [] add vim command(s) e.g. <cmd>EasyreadToggle
+-- [-] add vim command(s) e.g. <cmd>EasyreadToggle
 -- -- :h nvim_create_user_command()
