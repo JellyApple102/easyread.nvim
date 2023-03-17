@@ -1,7 +1,8 @@
 local M = {}
 
-M.start = function ()
+M.highlight = function ()
     M.clear()
+    M.active = true
 
     local bufnr = vim.api.nvim_get_current_buf()
     local linecount = vim.api.nvim_buf_line_count(bufnr)
@@ -34,6 +35,7 @@ M.start = function ()
 end
 
 M.clear = function ()
+    M.active = false
     local bufnr = vim.api.nvim_get_current_buf()
     vim.api.nvim_buf_clear_namespace(bufnr, M.namespace, 0, -1)
 end
@@ -50,9 +52,10 @@ M.setup = function (config)
     -- config
     M.config = vim.tbl_deep_extend('force', M.config, config or {})
 
-    -- other setup
-    M.namespace = vim.api.nvim_create_namespace('easyread')
+    M.active = false
 
+    -- highlights
+    M.namespace = vim.api.nvim_create_namespace('easyread')
     vim.api.nvim_set_hl(0, 'EasyreadHl', M.config.hlgroup)
     M.hlgroup = 'EasyreadHl'
 
@@ -62,7 +65,7 @@ M.setup = function (config)
     end, {})
 
     vim.api.nvim_create_user_command('EasyreadStart', function ()
-        M.start()
+        M.highlight()
     end, {})
 
     -- auto commands
@@ -70,7 +73,16 @@ M.setup = function (config)
     vim.api.nvim_create_autocmd('FileType', {
         pattern = M.config.fileTypes,
         group = group,
-        callback = function() M.start() end
+        callback = function() M.highlight() end
+    })
+    vim.api.nvim_create_autocmd('InsertLeave', {
+        pattern = '*',
+        group = group,
+        callback = function()
+            if M.active then
+                M.highlight()
+            end
+        end
     })
 end
 
@@ -83,8 +95,6 @@ return M
 -- [x] implement saccades interval
 --   [x] reset by line or carry over option ??
 -- [] update during insert mode option
--- -- autocommands?
 -- [] figure out how to determine how much of a word to bold
 -- -- fixation??
--- [x] add vim command(s) e.g. <cmd>EasyreadToggle?
--- -- :h nvim_create_user_command()
+-- [x] add user commands
