@@ -68,6 +68,20 @@ M.setup = function (config)
         M.highlight()
     end, {})
 
+    vim.api.nvim_create_user_command('EasyreadSaccadeInterval', function (opts)
+        M.config.saccadeInterval = tonumber(opts.fargs[1])
+        M.highlight()
+    end, { nargs = 1 })
+
+    vim.api.nvim_create_user_command('EasyreadSaccadeReset', function ()
+        if M.config.saccadeReset then
+            M.config.saccadeReset = false
+        else
+            M.config.saccadeReset = true
+        end
+        M.highlight()
+    end, {})
+
     -- auto commands
     local group = vim.api.nvim_create_augroup('easyread', { clear = true })
     vim.api.nvim_create_autocmd('FileType', {
@@ -75,6 +89,7 @@ M.setup = function (config)
         group = group,
         callback = function() M.highlight() end
     })
+
     vim.api.nvim_create_autocmd('InsertLeave', {
         pattern = '*',
         group = group,
