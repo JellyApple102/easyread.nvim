@@ -1,6 +1,6 @@
 local M = {}
 
-M.highlight = function ()
+M.highlight = function()
     M.clear()
     M.active = true
 
@@ -34,7 +34,7 @@ M.highlight = function ()
     end
 end
 
-M.clear = function ()
+M.clear = function()
     M.active = false
     local bufnr = vim.api.nvim_get_current_buf()
     vim.api.nvim_buf_clear_namespace(bufnr, M.namespace, 0, -1)
@@ -48,7 +48,7 @@ M.config = {
     updateInsertMode = false
 }
 
-M.setup = function (config)
+M.setup = function(config)
     -- config
     M.config = vim.tbl_deep_extend('force', M.config, config or {})
 
@@ -60,26 +60,34 @@ M.setup = function (config)
     M.hlgroup = 'EasyreadHl'
 
     -- user commands
-    vim.api.nvim_create_user_command('EasyreadClear', function ()
+    vim.api.nvim_create_user_command('EasyreadClear', function()
         M.clear()
     end, {})
 
-    vim.api.nvim_create_user_command('EasyreadStart', function ()
+    vim.api.nvim_create_user_command('EasyreadStart', function()
         M.highlight()
     end, {})
 
-    vim.api.nvim_create_user_command('EasyreadSaccadeInterval', function (opts)
+    vim.api.nvim_create_user_command('EasyreadSaccadeInterval', function(opts)
         M.config.saccadeInterval = tonumber(opts.fargs[1])
         M.highlight()
     end, { nargs = 1 })
 
-    vim.api.nvim_create_user_command('EasyreadSaccadeReset', function ()
+    vim.api.nvim_create_user_command('EasyreadSaccadeReset', function()
         if M.config.saccadeReset then
             M.config.saccadeReset = false
         else
             M.config.saccadeReset = true
         end
         M.highlight()
+    end, {})
+
+    vim.api.nvim_create_user_command('EasyreadUpdateInsert', function()
+        if M.config.updateInsertMode then
+            M.config.updateInsertMode = false
+        else
+            M.config.updateInsertMode = true
+        end
     end, {})
 
     -- auto commands
@@ -99,6 +107,16 @@ M.setup = function (config)
             end
         end
     })
+
+    vim.api.nvim_create_autocmd('TextChangedI', {
+        pattern = '*',
+        group = group,
+        callback = function()
+            if M.config.updateInsertMode and M.active then
+                M.highlight()
+            end
+        end
+    })
 end
 
 return M
@@ -109,7 +127,7 @@ return M
 -- [x] default on filetypes
 -- [x] implement saccades interval
 --   [x] reset by line or carry over option ??
--- [] update during insert mode option
+-- [x] update during insert mode option
 -- [] figure out how to determine how much of a word to bold
 -- -- fixation??
 -- [x] add user commands
