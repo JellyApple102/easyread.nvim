@@ -38,6 +38,9 @@ M.setup = function(config)
     M.namespace = vim.api.nvim_create_namespace('easyread')
     vim.api.nvim_set_hl(0, 'EasyreadHl', M.config.hlgroupOptions)
     M.hlgroup = 'EasyreadHl'
+
+    M.create_user_commands()
+    M.create_autocommands()
 end
 
 M.highlight = function()
@@ -101,66 +104,70 @@ M.check_active_buf = function(bufnr)
 end
 
 -- user commands
-vim.api.nvim_create_user_command('EasyreadToggle', function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    if M.check_active_buf(bufnr) then
-        M.clear()
-    else
-        M.highlight()
-    end
-end, {})
-
-vim.api.nvim_create_user_command('EasyreadSaccadeInterval', function(opts)
-    M.config.saccadeInterval = tonumber(opts.fargs[1])
-    M.highlight()
-end, { nargs = 1 })
-
-vim.api.nvim_create_user_command('EasyreadSaccadeReset', function()
-    if M.config.saccadeReset then
-        M.config.saccadeReset = false
-    else
-        M.config.saccadeReset = true
-    end
-        M.highlight()
-end, {})
-
-vim.api.nvim_create_user_command('EasyreadUpdateWhileInsert', function()
-    if M.config.updateWhileInsert then
-        M.config.updateWhileInsert = false
-    else
-        M.config.updateWhileInsert = true
-    end
-end, {})
-
--- auto commands
-local group = vim.api.nvim_create_augroup('easyread', { clear = true })
-
-vim.api.nvim_create_autocmd('FileType', {
-    pattern = M.config.fileTypes,
-    group = group,
-    callback = function() M.highlight() end
-})
-
-vim.api.nvim_create_autocmd('InsertLeave', {
-    pattern = '*',
-    group = group,
-    callback = function()
+M.create_user_commands = function()
+    vim.api.nvim_create_user_command('EasyreadToggle', function()
         local bufnr = vim.api.nvim_get_current_buf()
         if M.check_active_buf(bufnr) then
+            M.clear()
+        else
             M.highlight()
         end
-    end
-})
+    end, {})
 
-vim.api.nvim_create_autocmd('TextChangedI', {
-    pattern = '*',
-    group = group,
-    callback = function()
-        local bufnr = vim.api.nvim_get_current_buf()
-        if M.config.updateWhileInsert and M.check_active_buf(bufnr) then
-            M.highlight()
+    vim.api.nvim_create_user_command('EasyreadSaccadeInterval', function(opts)
+        M.config.saccadeInterval = tonumber(opts.fargs[1])
+        M.highlight()
+    end, { nargs = 1 })
+
+    vim.api.nvim_create_user_command('EasyreadSaccadeReset', function()
+        if M.config.saccadeReset then
+            M.config.saccadeReset = false
+        else
+            M.config.saccadeReset = true
         end
+            M.highlight()
+    end, {})
+
+    vim.api.nvim_create_user_command('EasyreadUpdateWhileInsert', function()
+        if M.config.updateWhileInsert then
+            M.config.updateWhileInsert = false
+        else
+            M.config.updateWhileInsert = true
+        end
+    end, {})
+end
+
+-- auto commands
+M.create_autocommands = function()
+    local group = vim.api.nvim_create_augroup('easyread', { clear = true })
+
+    if not vim.tbl_isempty(M.config.fileTypes) then
+        vim.api.nvim_create_autocmd('FileType', {
+            pattern = M.config.fileTypes,
+            group = group,
+            callback = function() M.highlight() end
+        })
     end
-})
+
+    vim.api.nvim_create_autocmd('InsertLeave', {
+        pattern = '*',
+        group = group,
+        callback = function(args)
+            if M.check_active_buf(args.buf) then
+                M.highlight()
+            end
+        end
+    })
+
+    vim.api.nvim_create_autocmd('TextChangedI', {
+        pattern = '*',
+        group = group,
+        callback = function(args)
+            if M.config.updateWhileInsert and M.check_active_buf(args.buf) then
+                M.highlight()
+            end
+        end
+    })
+end
 
 return M
