@@ -15,11 +15,21 @@ M.config = {
     updateWhileInsert = true
 }
 
-M.setup = function(config)
-    -- config
+M.check_config = function(config)
     if config.hlValues then
         M.config.hlValues = {}
     end
+    if config.fileTypes then
+        M.config.fileTypes = {}
+    end
+    if config.hlgroupOptions then
+        M.config.hlgroupOptions = {}
+    end
+end
+
+M.setup = function(config)
+    -- config
+    M.check_config(config)
     M.config = vim.tbl_deep_extend('force', M.config, config or {})
 
     M.activeBufs = {}
@@ -34,7 +44,7 @@ M.highlight = function()
     M.clear()
 
     local bufnr = vim.api.nvim_get_current_buf()
-    M.activateBuf(bufnr)
+    M.activate_buf(bufnr)
     local linecount = vim.api.nvim_buf_line_count(bufnr)
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, linecount, false)
 
@@ -74,26 +84,26 @@ end
 
 M.clear = function()
     local bufnr = vim.api.nvim_get_current_buf()
-    M.deactivateBuf(bufnr)
+    M.deactivate_buf(bufnr)
     vim.api.nvim_buf_clear_namespace(bufnr, M.namespace, 0, -1)
 end
 
-M.activateBuf = function(bufnr)
+M.activate_buf = function(bufnr)
     M.activeBufs[bufnr] = true
 end
 
-M.deactivateBuf = function(bufnr)
+M.deactivate_buf = function(bufnr)
     M.activeBufs[bufnr] = nil
 end
 
-M.checkActiveBuf = function(bufnr)
+M.check_active_buf = function(bufnr)
     return M.activeBufs[bufnr] ~= nil
 end
 
 -- user commands
 vim.api.nvim_create_user_command('EasyreadToggle', function()
     local bufnr = vim.api.nvim_get_current_buf()
-    if M.checkActiveBuf(bufnr) then
+    if M.check_active_buf(bufnr) then
         M.clear()
     else
         M.highlight()
@@ -136,7 +146,7 @@ vim.api.nvim_create_autocmd('InsertLeave', {
     group = group,
     callback = function()
         local bufnr = vim.api.nvim_get_current_buf()
-        if M.checkActiveBuf(bufnr) then
+        if M.check_active_buf(bufnr) then
             M.highlight()
         end
     end
@@ -147,7 +157,7 @@ vim.api.nvim_create_autocmd('TextChangedI', {
     group = group,
     callback = function()
         local bufnr = vim.api.nvim_get_current_buf()
-        if M.config.updateWhileInsert and M.checkActiveBuf(bufnr) then
+        if M.config.updateWhileInsert and M.check_active_buf(bufnr) then
             M.highlight()
         end
     end
