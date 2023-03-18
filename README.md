@@ -15,22 +15,18 @@ Get through that pesky block of text a little easier!
 Install using your preferred package manager.
 
 Example with [packer.nvim](https://github.com/wbthomason/packer.nvim)
+
 ```lua
 use {
     'JellyApple102/easyread.nvim'
 }
 ```
 
-Make sure to call `setup`:
-```lua
-require('easyread').setup{}
-```
-
 ## Configuration
 
 If you are okay with the defaults, just calling `setup` is enough.
-Defaults:
 ```lua
+-- Default configuration
 require('easyread').setup{
     hlValues = {
         ['1'] = 1,
@@ -46,8 +42,9 @@ require('easyread').setup{
     updateWhileInsert = true
 }
 ```
+## Options
 
-### `hlValues`
+- `hlValues`
 
 This table determines how many characters of a word to highlight based on word length.
 Lengths represented by string indexes are explicitly defined.
@@ -55,12 +52,12 @@ Lengths represented by string indexes are explicitly defined.
 Any other word lengths use the `fallback` value, between 0 and 1, representing how much of a word to highlight.
 0.3 highlights 30% of the word, 0.4 highlights 40%, etc.
 
-### `hlgroupOptions`
+- `hlgroupOptions`
 
 This table is passed to `nvim_set_hl()` as the `{val}` parameter.
 See `:h nvim_set_hl()` for more information.
 
-### `fileTypes`
+- `fileTypes`
 
 Table of file types to have easyread automatically highlight.
 Can be set to none with:
@@ -70,21 +67,21 @@ require('easyread').setup{
 }
 ```
 
-### `saccadeInterval`
+- `saccadeInterval`
 
 How many words go unhighlighted between highlighted words.
 
-### `saccadeReset`
+- `saccadeReset`
 
 Whether to reset the saccadeInterval on each line.
 
-### `updateWhileInsert`
+- `updateWhileInsert`
 
 Whether to update highlighting while in insert mode.
 
 ## Commands
 
-easyread provides several user commands.
+easyread provides several user commands:
 
 - `:EasyreadToggle` switches the current buffer between highlighted and not.
 - `:EasyreadSaccadeInterval {num}` sets the saccade interval to the given number.
