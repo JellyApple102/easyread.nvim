@@ -1,7 +1,10 @@
 # easyread.nvim
 
 bionic-like reading in Neovim.
-Get through that pesky block of text a little easier!
+
+![demo gif](assets/easyread-demo.gif)
+
+Get through that pesky wall of text a little easier!
 
 ## Features
 
@@ -87,3 +90,7 @@ easyread provides several user commands:
 - `:EasyreadSaccadeInterval {num}` sets the saccade interval to the given number.
 - `:EasyreadSaccadeReset` toggles the saccade line reset behaiour.
 - `:EasyreadUpdateWhileInsert` toggles updating highlights during insert mode.
+
+## Notes
+
+Theme used in demo gif is [kanagawa](https://github.com/rebelot/kanagawa.nvim).
