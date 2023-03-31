@@ -48,8 +48,7 @@ M.highlight = function()
 
     local bufnr = vim.api.nvim_get_current_buf()
     M.activate_buf(bufnr)
-    local linecount = vim.api.nvim_buf_line_count(bufnr)
-    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, linecount, false)
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
     local saccadecounter = 0
     for i, line in ipairs(lines) do

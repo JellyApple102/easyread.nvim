@@ -91,6 +91,8 @@ easyread provides several user commands:
 - `:EasyreadSaccadeReset` toggles the saccade line reset behaiour.
 - `:EasyreadUpdateWhileInsert` toggles updating highlights during insert mode.
 
-## Notes
+## Extras
 
-Theme used in demo gif is [kanagawa](https://github.com/rebelot/kanagawa.nvim).
+Theme used in demo gif is [kanagawa](https://github.com/rebelot/kanagawa.nvim)
+
+Check out my other plugin [flote.nvim](https://github.com/JellyApple102/flote.nvim)
