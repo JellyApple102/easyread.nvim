@@ -58,7 +58,7 @@ M.highlight = function()
         end
 
         -- highlight according to hlValues
-        for s, w in string.gmatch(line, '()(%w+)') do
+        for s, w in string.gmatch(line, '()([^%s%p%d]+)') do
             -- reset saccadecounter if over the interval
             if saccadecounter > M.config.saccadeInterval then
                 saccadecounter = 0
